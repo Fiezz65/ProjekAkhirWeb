@@ -92,9 +92,9 @@
 <body class="text-slate-800 @yield('body-class')">
 
     <div class="flex min-h-screen">
-        @isset($role)
-            @include('layouts.sidebar', ['role' => $role])
-        @endisset
+        @if(Auth::check())
+            @include('layouts.sidebar')
+        @endif
         <div class="flex-1">
             <main class="p-4 sm:p-6 md:p-8">
                 @yield('konten')

@@ -89,8 +89,7 @@
 
     const fakultasSelect = document.getElementById('fakultas');
     const prodiSelect = document.getElementById('program_studi');
-    
-    // Ambil data ingatan (old) dari Laravel Backend
+
     const oldFakultas = "{!! old('fakultas') !!}";
     const oldProdi = "{!! old('program_studi') !!}";
 
@@ -99,12 +98,10 @@
             fakultasSelect.add(new Option(fakultas, fakultas));
         });
 
-        // Mengembalikan ingatan dropdown jika ada
         if (oldFakultas) {
             fakultasSelect.value = oldFakultas;
-            // Pancing JS seolah-olah user mengklik fakultas (agar prodinya muncul)
             fakultasSelect.dispatchEvent(new Event('change'));
-            
+
             if (oldProdi) {
                 prodiSelect.value = oldProdi;
             }

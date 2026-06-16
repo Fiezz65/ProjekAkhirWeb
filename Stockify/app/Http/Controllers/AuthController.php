@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Handle the registration request.
-     */
     public function register(Request $request)
     {
         $request->validate([
@@ -27,21 +24,16 @@ class AuthController extends Controller
             'nama' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'peminjam', // Default role untuk registrasi publik
+            'role' => 'peminjam',
             'alamat' => $request->alamat,
             'fakultas' => $request->fakultas,
             'program_studi' => $request->program_studi,
         ]);
 
-        // Langsung login setelah register berhasil
         Auth::login($user);
 
         return redirect()->route('peminjam.dashboard');
     }
-
-    /**
-     * Handle an authentication attempt.
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -52,7 +44,6 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Arahkan ke dashboard sesuai role
             if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             } else {
@@ -65,9 +56,6 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    /**
-     * Log the user out of the application.
-     */
     public function logout(Request $request)
     {
         Auth::logout();
