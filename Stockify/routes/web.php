@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('autentikasi.login');
@@ -14,6 +15,10 @@ Route::prefix('auth')->group(function () {
     Route::get('/register', function () {
         return view('autentikasi.register');
     })->name('register');
+
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {

@@ -17,10 +17,17 @@
                 <p class="text-gray-500 text-sm">Selamat datang kembali!</p>
             </div>
 
-            <form action="#" method="POST" class="space-y-5">
+            @if ($errors->any())
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <form action="{{ route('login.post') }}" method="POST" class="space-y-5">
+                @csrf
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="email" name="email" class="ui-input" placeholder="contoh@email.com" value="admin@stockify.com" required>
+                    <input type="email" id="email" name="email" class="ui-input" placeholder="contoh@email.com" value="{{ old('email', 'admin@stockify.com') }}" required>
                 </div>
 
                 <div>

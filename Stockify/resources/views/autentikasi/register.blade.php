@@ -19,15 +19,22 @@
             </div>
 
             {{-- PERBAIKAN FINAL: LAYOUT KEMBALI KE VERTIKAL, SEMUA JARAK DIPADATKAN --}}
-            <form action="#" method="POST" class="space-y-2">
+            @if ($errors->any())
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <form action="{{ route('register.post') }}" method="POST" class="space-y-2">
+                @csrf
 
                 <div>
                     <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                    <input type="text" id="nama" name="nama" class="ui-input py-2 px-3" placeholder="Masukkan nama lengkap" required>
+                    <input type="text" id="nama" name="nama" class="ui-input py-2 px-3" placeholder="Masukkan nama lengkap" value="{{ old('nama') }}" required>
                 </div>
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="email" name="email" class="ui-input py-2 px-3" placeholder="Masukkan alamat email" required>
+                    <input type="email" id="email" name="email" class="ui-input py-2 px-3" placeholder="Masukkan alamat email" value="{{ old('email') }}" required>
                 </div>
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
@@ -35,7 +42,7 @@
                 </div>
                 <div>
                     <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                    <input type="text" id="alamat" name="alamat" class="ui-input py-2 px-3" placeholder="Masukkan alamat tinggal" required>
+                    <input type="text" id="alamat" name="alamat" class="ui-input py-2 px-3" placeholder="Masukkan alamat tinggal" value="{{ old('alamat') }}" required>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
@@ -47,7 +54,7 @@
                     <div>
                         <label for="program_studi" class="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
                         <select id="program_studi" name="program_studi" class="ui-input py-2 px-3" required disabled>
-                            <option value="">Pilih program studi</d>
+                            <option value="">Pilih program studi</option>
                         </select>
                     </div>
                 </div>
@@ -82,11 +89,26 @@
 
     const fakultasSelect = document.getElementById('fakultas');
     const prodiSelect = document.getElementById('program_studi');
+    
+    // Ambil data ingatan (old) dari Laravel Backend
+    const oldFakultas = "{!! old('fakultas') !!}";
+    const oldProdi = "{!! old('program_studi') !!}";
 
     document.addEventListener('DOMContentLoaded', () => {
         Object.keys(dataAkademik).forEach(fakultas => {
             fakultasSelect.add(new Option(fakultas, fakultas));
         });
+
+        // Mengembalikan ingatan dropdown jika ada
+        if (oldFakultas) {
+            fakultasSelect.value = oldFakultas;
+            // Pancing JS seolah-olah user mengklik fakultas (agar prodinya muncul)
+            fakultasSelect.dispatchEvent(new Event('change'));
+            
+            if (oldProdi) {
+                prodiSelect.value = oldProdi;
+            }
+        }
     });
 
     fakultasSelect.addEventListener('change', () => {

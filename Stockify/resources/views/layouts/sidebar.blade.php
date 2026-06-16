@@ -50,7 +50,7 @@
             <i data-feather="user" class="w-5 h-5"></i>
             <span>Profil Saya</span>
         </a>
-        <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
+        <a href="{{ route('logout') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
             <i data-feather="log-out" class="w-5 h-5"></i>
             <span>Logout</span>
         </a>
