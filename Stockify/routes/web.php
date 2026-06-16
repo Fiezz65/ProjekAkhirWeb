@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarangController;
 
 Route::get('/', function () {
     return view('autentikasi.login');
@@ -14,17 +16,22 @@ Route::prefix('auth')->group(function () {
     Route::get('/register', function () {
         return view('autentikasi.register');
     })->name('register');
+
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', function () {
-        return view('admin.dashboard', ['role' => 'admin']);
+        return view('admin.dashboard');
     })->name('dashboard');
 
-    Route::get('/barang', function () {
-        return view('admin.manajemen_barang', ['role' => 'admin']);
-    })->name('barang');
+    Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
+    Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
+    Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
+    Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
 
     Route::get('/peminjaman', function () {
         return view('admin.manajemen_peminjaman', ['role' => 'admin']);

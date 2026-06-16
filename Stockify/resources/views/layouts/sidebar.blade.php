@@ -8,12 +8,12 @@
             $currentRoute = request()->route()->getName();
         @endphp
 
-        @if(isset($role) && $role == 'admin')
+        @if(Auth::check() && Auth::user()->role == 'admin')
             <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ $currentRoute == 'admin.dashboard' ? 'active' : 'hover:bg-gray-100' }}">
                 <i data-feather="home" class="w-5 h-5"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="{{ route('admin.barang') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ $currentRoute == 'admin.barang' ? 'active' : 'hover:bg-gray-100' }}">
+            <a href="{{ route('admin.barang.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ $currentRoute == 'admin.barang.index' ? 'active' : 'hover:bg-gray-100' }}">
                 <i data-feather="archive" class="w-5 h-5"></i>
                 <span>Manajemen Barang</span>
             </a>
@@ -27,7 +27,7 @@
             </a>
         @endif
 
-        @if(isset($role) && $role == 'peminjam')
+        @if(Auth::check() && Auth::user()->role == 'peminjam')
             <a href="{{ route('peminjam.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ $currentRoute == 'peminjam.dashboard' ? 'active' : 'hover:bg-gray-100' }}">
                 <i data-feather="home" class="w-5 h-5"></i>
                 <span>Dashboard</span>
@@ -46,11 +46,11 @@
     <div class="flex-grow"></div>
 
     <div class="mt-auto space-y-2">
-        <a href="{{ isset($role) && $role == 'admin' ? route('admin.profil') : route('peminjam.profil') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ str_contains($currentRoute, 'profil') ? 'active' : 'hover:bg-gray-100' }}">
+        <a href="{{ Auth::check() && Auth::user()->role == 'admin' ? route('admin.profil') : route('peminjam.profil') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ str_contains($currentRoute, 'profil') ? 'active' : 'hover:bg-gray-100' }}">
             <i data-feather="user" class="w-5 h-5"></i>
             <span>Profil Saya</span>
         </a>
-        <a href="{{ route('login') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
+        <a href="{{ route('logout') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
             <i data-feather="log-out" class="w-5 h-5"></i>
             <span>Logout</span>
         </a>

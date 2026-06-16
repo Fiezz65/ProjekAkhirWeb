@@ -5,7 +5,31 @@
 @section('konten')
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-<div x-data="{ isAddModalOpen: false, isEditModalOpen: false }">
+<div x-data="{ 
+    isAddModalOpen: false, 
+    isEditModalOpen: false,
+    editData: { id_barang: '', nama_barang: '', jumlah_total: '', kondisi: '', keterangan: '' },
+    editBarang(barang) {
+        this.editData = barang;
+        this.isEditModalOpen = true;
+    }
+}">
+    @if(session('success'))
+        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">{{ session('error') }}</div>
+    @endif
+    @if ($errors->any())
+        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+            <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-extrabold">Manajemen Barang</h1>
@@ -28,28 +52,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                    $items = [
-                        ['name' => 'Proyektor Epson', 'total' => 5, 'available' => 5, 'condition' => 'Baik', 'condition_color' => 'green'],
-                        ['name' => 'Sound System', 'total' => 2, 'available' => 2, 'condition' => 'Baik', 'condition_color' => 'green'],
-                        ['name' => 'Meja Rapat', 'total' => 10, 'available' => 8, 'condition' => 'Rusak Ringan', 'condition_color' => 'yellow'],
-                        ['name' => 'Papan Tulis Whiteboard', 'total' => 3, 'available' => 3, 'condition' => 'Rusak Berat', 'condition_color' => 'red']
-                    ];
-                    @endphp
-
-                    @foreach($items as $item)
+                    @forelse($barangs as $barang)
                     <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 border-b border-gray-100 font-bold text-gray-800">{{ $item['name'] }}</td>
-                        <td class="p-4 border-b border-gray-100 text-center"><span class="font-semibold text-gray-700">{{ $item['available'] }}</span><span class="text-gray-400">/{{ $item['total'] }}</span></td>
-                        <td class="p-4 border-b border-gray-100"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$item['condition_color']}}-100 text-{{$item['condition_color']}}-800">{{ $item['condition'] }}</span></td>
+                        <td class="p-4 border-b border-gray-100 font-bold text-gray-800">{{ $barang->nama_barang }}</td>
+                        <td class="p-4 border-b border-gray-100 text-center"><span class="font-semibold text-gray-700">{{ $barang->jumlah_tersedia }}</span><span class="text-gray-400">/{{ $barang->jumlah_total }}</span></td>
+                        <td class="p-4 border-b border-gray-100">
+                            @php
+                                $color = 'green';
+                                if($barang->kondisi == 'Rusak Ringan') $color = 'yellow';
+                                if($barang->kondisi == 'Rusak Berat') $color = 'red';
+                            @endphp
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$color}}-100 text-{{$color}}-800">{{ $barang->kondisi }}</span>
+                        </td>
                         <td class="p-4 border-b border-gray-100">
                             <div class="flex justify-center items-center gap-2">
-                                <button @click="isEditModalOpen = true" title="Edit Barang" class="p-2 rounded-md hover:bg-blue-100 text-blue-600 transition-colors"><i data-feather="edit" class="w-4 h-4"></i></button>
-                                <button title="Hapus Barang" class="p-2 rounded-md hover:bg-red-100 text-red-600 transition-colors"><i data-feather="trash-2" class="w-4 h-4"></i></button>
+                                <button @click="editBarang({{ $barang->toJson() }})" title="Edit Barang" class="p-2 rounded-md hover:bg-blue-100 text-blue-600 transition-colors"><i data-feather="edit" class="w-4 h-4"></i></button>
+                                <form action="{{ route('admin.barang.destroy', $barang->id_barang) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" title="Hapus Barang" class="p-2 rounded-md hover:bg-red-100 text-red-600 transition-colors"><i data-feather="trash-2" class="w-4 h-4"></i></button>
+                                </form>
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="4" class="p-4 text-center text-gray-500">Belum ada data barang.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -61,19 +91,20 @@
                 <h3 class="text-xl font-bold">Tambah Barang Baru</h3>
                 <button @click="isAddModalOpen = false" class="p-2 rounded-full hover:bg-gray-100"><i data-feather="x" class="w-5 h-5"></i></button>
             </div>
-            <form class="space-y-4">
+            <form action="{{ route('admin.barang.store') }}" method="POST" class="space-y-4">
+                @csrf
                 <div>
                     <label for="add_nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Barang</label>
-                    <input type="text" id="add_nama" class="ui-input" placeholder="Contoh: Proyektor Epson" required>
+                    <input type="text" name="nama_barang" id="add_nama" class="ui-input" placeholder="Contoh: Proyektor Epson" required>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="add_jumlah" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Total</label>
-                        <input type="number" id="add_jumlah" class="ui-input" placeholder="Contoh: 5" required>
+                        <input type="number" name="jumlah_total" id="add_jumlah" class="ui-input" placeholder="Contoh: 5" required min="1">
                     </div>
                     <div>
                         <label for="add_kondisi" class="block text-sm font-medium text-gray-700 mb-1">Kondisi</label>
-                        <select id="add_kondisi" class="ui-input" required>
+                        <select name="kondisi" id="add_kondisi" class="ui-input" required>
                             <option value="Baik">Baik</option>
                             <option value="Rusak Ringan">Rusak Ringan</option>
                             <option value="Rusak Berat">Rusak Berat</option>
@@ -82,7 +113,7 @@
                 </div>
                 <div>
                     <label for="add_keterangan" class="block text-sm font-medium text-gray-700 mb-1">Keterangan (Opsional)</label>
-                    <textarea id="add_keterangan" rows="2" class="ui-input" placeholder="Contoh: Lengkap dengan kabel HDMI"></textarea>
+                    <textarea name="keterangan" id="add_keterangan" rows="2" class="ui-input" placeholder="Contoh: Lengkap dengan kabel HDMI"></textarea>
                 </div>
                 <div class="pt-2 text-right">
                     <button type="submit" class="ui-button ui-button-primary">Simpan Barang</button>
@@ -97,20 +128,22 @@
                 <h3 class="text-xl font-bold">Edit Barang</h3>
                 <button @click="isEditModalOpen = false" class="p-2 rounded-full hover:bg-gray-100"><i data-feather="x" class="w-5 h-5"></i></button>
             </div>
-            <form class="space-y-4">
+            <form :action="`/admin/barang/${editData.id_barang}`" method="POST" class="space-y-4">
+                @csrf
+                @method('PUT')
                 <div>
                     <label for="edit_nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Barang</label>
-                    <input type="text" id="edit_nama" class="ui-input" value="Proyektor Epson" required>
+                    <input type="text" name="nama_barang" id="edit_nama" class="ui-input" x-model="editData.nama_barang" required>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="edit_jumlah" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Total</label>
-                        <input type="number" id="edit_jumlah" class="ui-input" value="5" required>
+                        <input type="number" name="jumlah_total" id="edit_jumlah" class="ui-input" x-model="editData.jumlah_total" required min="1">
                     </div>
                     <div>
                         <label for="edit_kondisi" class="block text-sm font-medium text-gray-700 mb-1">Kondisi</label>
-                        <select id="edit_kondisi" class="ui-input" required>
-                            <option value="Baik" selected>Baik</option>
+                        <select name="kondisi" id="edit_kondisi" class="ui-input" x-model="editData.kondisi" required>
+                            <option value="Baik">Baik</option>
                             <option value="Rusak Ringan">Rusak Ringan</option>
                             <option value="Rusak Berat">Rusak Berat</option>
                         </select>
@@ -118,7 +151,7 @@
                 </div>
                 <div>
                     <label for="edit_keterangan" class="block text-sm font-medium text-gray-700 mb-1">Keterangan (Opsional)</label>
-                    <textarea id="edit_keterangan" rows="2" class="ui-input">Lengkap dengan kabel HDMI dan tas.</textarea>
+                    <textarea name="keterangan" id="edit_keterangan" rows="2" class="ui-input" x-model="editData.keterangan"></textarea>
                 </div>
                 <div class="pt-2 text-right">
                     <button type="submit" class="ui-button ui-button-primary">Simpan Perubahan</button>
