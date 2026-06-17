@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfilController;
 
 Route::get('/', function () {
     return view('autentikasi.login');
@@ -22,47 +25,37 @@ Route::prefix('auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
     Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
     Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
     Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
     Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
 
-    Route::get('/peminjaman', function () {
-        return view('admin.manajemen_peminjaman', ['role' => 'admin']);
-    })->name('peminjaman');
+    Route::get('/peminjaman', [PeminjamanController::class, 'indexAdmin'])->name('peminjaman');
+    Route::patch('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
+    Route::patch('/peminjaman/{peminjaman}/reject', [PeminjamanController::class, 'reject'])->name('peminjaman.reject');
+    Route::patch('/peminjaman/{peminjaman}/return', [PeminjamanController::class, 'returnItem'])->name('peminjaman.return');
 
-    Route::get('/riwayat', function () {
-        return view('admin.riwayat', ['role' => 'admin']);
-    })->name('riwayat');
+    Route::get('/riwayat', [PeminjamanController::class, 'riwayatAdmin'])->name('riwayat');
 
-    Route::get('/profil', function () {
-        return view('profil.index', ['role' => 'admin']);
-    })->name('profil');
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
+    Route::put('/profil/info', [ProfilController::class, 'updateInfo'])->name('profil.info');
+    Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
 });
 
-Route::prefix('peminjam')->name('peminjam.')->group(function () {
+Route::middleware(['auth'])->prefix('peminjam')->name('peminjam.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'peminjam'])->name('dashboard');
 
-    Route::get('/dashboard', function () {
-        return view('peminjam.dashboard', ['role' => 'peminjam']);
-    })->name('dashboard');
+    Route::get('/barang', [PeminjamanController::class, 'createPeminjam'])->name('barang');
+    Route::post('/pinjam', [PeminjamanController::class, 'storePeminjam'])->name('pinjam.store');
 
-    Route::get('/barang', function () {
-        return view('peminjam.pinjam_barang', ['role' => 'peminjam']);
-    })->name('barang');
+    Route::get('/riwayat', [PeminjamanController::class, 'riwayatPeminjam'])->name('riwayat');
 
-    Route::get('/riwayat', function () {
-        return view('peminjam.riwayat', ['role' => 'peminjam']);
-    })->name('riwayat');
-
-    Route::get('/profil', function () {
-        return view('profil.index', ['role' => 'peminjam']);
-    })->name('profil');
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
+    Route::put('/profil/info', [ProfilController::class, 'updateInfo'])->name('profil.info');
+    Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
 });
 
 Route::fallback(function () {
