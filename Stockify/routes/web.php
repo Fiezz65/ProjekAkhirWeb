@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfilController;
 
 Route::get('/', function () {
     return view('autentikasi.login');
@@ -39,9 +40,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::get('/riwayat', [PeminjamanController::class, 'riwayatAdmin'])->name('riwayat');
 
-    Route::get('/profil', function () {
-        return view('profil.index', ['role' => 'admin']);
-    })->name('profil');
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
+    Route::put('/profil/info', [ProfilController::class, 'updateInfo'])->name('profil.info');
+    Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
 });
 
 Route::middleware(['auth'])->prefix('peminjam')->name('peminjam.')->group(function () {
@@ -52,9 +53,9 @@ Route::middleware(['auth'])->prefix('peminjam')->name('peminjam.')->group(functi
 
     Route::get('/riwayat', [PeminjamanController::class, 'riwayatPeminjam'])->name('riwayat');
 
-    Route::get('/profil', function () {
-        return view('profil.index', ['role' => 'peminjam']);
-    })->name('profil');
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
+    Route::put('/profil/info', [ProfilController::class, 'updateInfo'])->name('profil.info');
+    Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
 });
 
 Route::fallback(function () {
