@@ -8,57 +8,85 @@
             <h1 class="text-3xl font-extrabold">Manajemen Peminjaman</h1>
         </div>
 
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">{{ session('error') }}</div>
+        @endif
+
         <div class="ui-card">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-max text-left">
                     <thead>
                         <tr>
                             <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Detail Peminjam</th>
-                            <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Barang</th>
+                            <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Barang & Jumlah</th>
                             <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Status</th>
                             <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                        $requests = [
-                            ['user' => 'Ani Lestari', 'item' => 'Sound System (1)', 'date' => '16 Mei 2024', 'status' => 'Menunggu', 'status_color' => 'orange', 'actions' => ['approve', 'reject']],
-                            ['user' => 'Budi Santoso', 'item' => 'Proyektor Epson (1)', 'date' => '15 Mei 2024', 'status' => 'Dipinjam', 'status_color' => 'yellow', 'actions' => ['process_return']],
-                            ['user' => 'Candra Wijaya', 'item' => 'Meja Rapat (2)', 'date' => '14 Mei 2024', 'status' => 'Dikembalikan', 'status_color' => 'green', 'actions' => ['done']],
-                            ['user' => 'Deni Saputra', 'item' => 'Papan Tulis (1)', 'date' => '13 Mei 2024', 'status' => 'Ditolak', 'status_color' => 'red', 'actions' => ['done']]
-                        ];
-                        @endphp
-
-                        @foreach($requests as $req)
+                        @forelse($requests as $req)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="p-4 border-b border-gray-100">
-                                <p class="font-bold text-gray-800">{{ $req['user'] }}</p>
-                                <p class="text-sm text-gray-500">Tgl. Pinjam: {{ $req['date'] }}</p>
+                                <p class="font-bold text-gray-800">{{ $req->user->nama }}</p>
+                                <p class="text-sm text-gray-500">Tgl. Pinjam: {{ \Carbon\Carbon::parse($req->tgl_pinjam)->format('d M Y') }}</p>
+                                <p class="text-sm text-gray-500">Rencana Kembali: {{ \Carbon\Carbon::parse($req->tgl_kembali_plan)->format('d M Y') }}</p>
                             </td>
-                            <td class="p-4 border-b border-gray-100 font-medium text-gray-700">{{ $req['item'] }}</td>
+                            <td class="p-4 border-b border-gray-100 font-medium text-gray-700">
+                                <ul class="list-disc pl-4">
+                                    @foreach($req->detailPeminjaman as $detail)
+                                        <li>{{ $detail->barang->nama_barang }} ({{ $detail->jumlah }} unit)</li>
+                                    @endforeach
+                                </ul>
+                            </td>
                             <td class="p-4 border-b border-gray-100">
-                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$req['status_color']}}-100 text-{{$req['status_color']}}-800">{{ $req['status'] }}</span>
+                                @php
+                                    $statusColor = 'gray';
+                                    if($req->status == 'Menunggu') $statusColor = 'orange';
+                                    if($req->status == 'Dipinjam') $statusColor = 'yellow';
+                                    if($req->status == 'Dikembalikan') $statusColor = 'green';
+                                    if($req->status == 'Ditolak') $statusColor = 'red';
+                                @endphp
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$statusColor}}-100 text-{{$statusColor}}-800">{{ $req->status }}</span>
                             </td>
                             <td class="p-4 border-b border-gray-100 text-center">
                                 <div class="flex justify-center items-center gap-2">
-                                    @if(in_array('approve', $req['actions']))
-                                        <button title="Setujui" class="p-2 rounded-md hover:bg-green-100 text-green-600"><i data-feather="check-circle" class="w-5 h-5"></i></button>
-                                        <button title="Tolak" class="p-2 rounded-md hover:bg-red-100 text-red-600"><i data-feather="x-circle" class="w-5 h-5"></i></button>
-                                    @endif
-
-                                    @if(in_array('process_return', $req['actions']))
-                                        <button title="Tandai Sudah Kembali" class="p-2 rounded-md hover:bg-blue-100 text-blue-600">
-                                            <i data-feather="corner-down-left" class="w-5 h-5"></i>
-                                        </button>
-                                    @endif
-
-                                    @if(in_array('done', $req['actions']))
+                                    @if($req->status == 'Menunggu')
+                                        <form action="{{ route('admin.peminjaman.approve', $req->id_peminjaman) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" title="Setujui" class="p-2 rounded-md hover:bg-green-100 text-green-600">
+                                                <i data-feather="check-circle" class="w-5 h-5"></i>
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('admin.peminjaman.reject', $req->id_peminjaman) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" title="Tolak" class="p-2 rounded-md hover:bg-red-100 text-red-600">
+                                                <i data-feather="x-circle" class="w-5 h-5"></i>
+                                            </button>
+                                        </form>
+                                    @elseif($req->status == 'Dipinjam')
+                                        <form action="{{ route('admin.peminjaman.return', $req->id_peminjaman) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" title="Tandai Sudah Kembali" class="p-2 rounded-md hover:bg-blue-100 text-blue-600">
+                                                <i data-feather="corner-down-left" class="w-5 h-5"></i>
+                                            </button>
+                                        </form>
+                                    @else
                                         <span class="text-gray-400" title="Selesai"><i data-feather="check" class="w-5 h-5"></i></span>
                                     @endif
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-gray-500">Belum ada data peminjaman.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
