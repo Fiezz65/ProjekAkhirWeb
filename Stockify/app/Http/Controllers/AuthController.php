@@ -23,7 +23,7 @@ class AuthController extends Controller
         $user = User::create([
             'nama' => $request->nama,
             'email' => $request->email,
-            'password' => $request->password, // Jangan di-Hash manual karena User model sudah punya cast 'hashed'
+            'password' => $request->password,
             'role' => 'peminjam',
             'alamat' => $request->alamat,
             'fakultas' => $request->fakultas,
