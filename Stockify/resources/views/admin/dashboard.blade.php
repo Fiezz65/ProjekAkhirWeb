@@ -49,14 +49,17 @@
                         <tr>
                             <th class="p-4 text-sm font-semibold text-gray-500">Peminjam</th>
                             <th class="p-4 text-sm font-semibold text-gray-500">Barang & Jumlah</th>
-                            <th class="p-4 text-sm font-semibold text-gray-500">Tgl Pinjam</th>
+                            <th class="p-4 text-sm font-semibold text-gray-500">Tanggal Pinjam</th>
                             <th class="p-4 text-sm font-semibold text-gray-500 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($peminjamanTerbaru as $req)
                         <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="p-4 font-medium">{{ $req->user->nama }}</td>
+                            <td class="p-4">
+                                <a href="{{ route('admin.peminjam.show', $req->user->id_users) }}" class="font-bold hover:text-blue-600 transition-colors">{{ $req->user->nama }}</a>
+                                <p class="text-sm text-gray-500">{{ $req->user->nim }}</p>
+                            </td>
                             <td class="p-4 text-gray-600">
                                 <ul class="list-disc pl-4">
                                     @foreach($req->detailPeminjaman as $detail)

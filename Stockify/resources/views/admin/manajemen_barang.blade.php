@@ -5,8 +5,8 @@
 @section('konten')
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-<div x-data="{ 
-    isAddModalOpen: false, 
+<div x-data="{
+    isAddModalOpen: false,
     isEditModalOpen: false,
     editData: { id_barang: '', nama_barang: '', jumlah_total: '', kondisi: '', keterangan: '' },
     editBarang(barang) {
@@ -14,12 +14,6 @@
         this.isEditModalOpen = true;
     }
 }">
-    @if(session('success'))
-        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">{{ session('error') }}</div>
-    @endif
     @if ($errors->any())
         <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
             <ul class="list-disc pl-5">
@@ -45,6 +39,7 @@
             <table class="w-full min-w-max text-left">
                 <thead>
                     <tr>
+                        <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Foto</th>
                         <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Nama Barang</th>
                         <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200 text-center">Stok</th>
                         <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Kondisi</th>
@@ -54,6 +49,15 @@
                 <tbody>
                     @forelse($barangs as $barang)
                     <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="p-4 border-b border-gray-100">
+                            @if($barang->foto_barang)
+                                <img src="{{ Illuminate\Support\Facades\Storage::url($barang->foto_barang) }}" alt="{{ $barang->nama_barang }}" class="w-16 h-16 object-cover rounded-md">
+                            @else
+                                <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                                    <i data-feather="camera-off" class="w-6 h-6 text-gray-400"></i>
+                                </div>
+                            @endif
+                        </td>
                         <td class="p-4 border-b border-gray-100 font-bold text-gray-800">{{ $barang->nama_barang }}</td>
                         <td class="p-4 border-b border-gray-100 text-center"><span class="font-semibold text-gray-700">{{ $barang->jumlah_tersedia }}</span><span class="text-gray-400">/{{ $barang->jumlah_total }}</span></td>
                         <td class="p-4 border-b border-gray-100">
@@ -77,7 +81,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="p-4 text-center text-gray-500">Belum ada data barang.</td>
+                        <td colspan="5" class="p-4 text-center text-gray-500">Belum ada data barang.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -91,7 +95,7 @@
                 <h3 class="text-xl font-bold">Tambah Barang Baru</h3>
                 <button @click="isAddModalOpen = false" class="p-2 rounded-full hover:bg-gray-100"><i data-feather="x" class="w-5 h-5"></i></button>
             </div>
-            <form action="{{ route('admin.barang.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('admin.barang.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
                     <label for="add_nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Barang</label>
@@ -110,6 +114,10 @@
                             <option value="Rusak Berat">Rusak Berat</option>
                         </select>
                     </div>
+                </div>
+                <div>
+                    <label for="add_foto" class="block text-sm font-medium text-gray-700 mb-1">Foto Barang (Opsional)</label>
+                    <input type="file" name="foto_barang" id="add_foto" class="ui-input" accept="image/*">
                 </div>
                 <div>
                     <label for="add_keterangan" class="block text-sm font-medium text-gray-700 mb-1">Keterangan (Opsional)</label>

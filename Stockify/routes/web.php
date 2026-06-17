@@ -34,6 +34,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
 
     Route::get('/peminjaman', [PeminjamanController::class, 'indexAdmin'])->name('peminjaman');
+    Route::get('/peminjam/{user}', [PeminjamanController::class, 'showPeminjam'])->name('peminjam.show');
     Route::patch('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
     Route::patch('/peminjaman/{peminjaman}/reject', [PeminjamanController::class, 'reject'])->name('peminjaman.reject');
     Route::patch('/peminjaman/{peminjaman}/return', [PeminjamanController::class, 'returnItem'])->name('peminjaman.return');
@@ -42,6 +43,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
     Route::put('/profil/info', [ProfilController::class, 'updateInfo'])->name('profil.info');
+    Route::post('/profil/picture', [ProfilController::class, 'updatePicture'])->name('profil.picture');
     Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
 });
 
@@ -55,6 +57,7 @@ Route::middleware(['auth'])->prefix('peminjam')->name('peminjam.')->group(functi
 
     Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
     Route::put('/profil/info', [ProfilController::class, 'updateInfo'])->name('profil.info');
+    Route::post('/profil/picture', [ProfilController::class, 'updatePicture'])->name('profil.picture');
     Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
 });
 
