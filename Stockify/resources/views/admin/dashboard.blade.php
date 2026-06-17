@@ -16,7 +16,7 @@
                 </div>
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Total Barang</p>
-                    <p class="text-3xl font-bold">15</p>
+                    <p class="text-3xl font-bold">{{ $totalBarang }}</p>
                 </div>
             </div>
 
@@ -26,7 +26,7 @@
                 </div>
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Barang Dipinjam</p>
-                    <p class="text-3xl font-bold">3</p>
+                    <p class="text-3xl font-bold">{{ $barangDipinjam }}</p>
                 </div>
             </div>
 
@@ -36,7 +36,7 @@
                 </div>
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Permohonan Baru</p>
-                    <p class="text-3xl font-bold">2</p>
+                    <p class="text-3xl font-bold">{{ $permohonanBaru }}</p>
                 </div>
             </div>
         </div>
@@ -46,32 +46,41 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead class="border-b border-gray-200">
-                    <tr>
-                        <th class="p-4 text-sm font-semibold text-gray-500">Peminjam</th>
-                        <th class="p-4 text-sm font-semibold text-gray-500">Barang</th>
-                        <th class="p-4 text-sm font-semibold text-gray-500">Tgl Pinjam</th>
-                        <th class="p-4 text-sm font-semibold text-gray-500 text-center">Status</th>
-                    </tr>
+                        <tr>
+                            <th class="p-4 text-sm font-semibold text-gray-500">Peminjam</th>
+                            <th class="p-4 text-sm font-semibold text-gray-500">Barang & Jumlah</th>
+                            <th class="p-4 text-sm font-semibold text-gray-500">Tgl Pinjam</th>
+                            <th class="p-4 text-sm font-semibold text-gray-500 text-center">Status</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="p-4 font-medium">Budi Santoso</td>
-                        <td class="p-4 text-gray-600">Proyektor Epson</td>
-                        <td class="p-4 text-gray-600">15 Mei 2024</td>
-                        <td class="p-4 text-center"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Dipinjam</span></td>
-                    </tr>
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="p-4 font-medium">Ani Lestari</td>
-                        <td class="p-4 text-gray-600">Sound System</td>
-                        <td class="p-4 text-gray-600">16 Mei 2024</td>
-                        <td class="p-4 text-center"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Menunggu</span></td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4 font-medium">Candra Wijaya</td>
-                        <td class="p-4 text-gray-600">Meja Rapat</td>
-                        <td class="p-4 text-gray-600">14 Mei 2024</td>
-                        <td class="p-4 text-center"><span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Dikembalikan</span></td>
-                    </tr>
+                        @forelse($peminjamanTerbaru as $req)
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="p-4 font-medium">{{ $req->user->nama }}</td>
+                            <td class="p-4 text-gray-600">
+                                <ul class="list-disc pl-4">
+                                    @foreach($req->detailPeminjaman as $detail)
+                                        <li>{{ $detail->barang->nama_barang }} ({{ $detail->jumlah }})</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                            <td class="p-4 text-gray-600">{{ \Carbon\Carbon::parse($req->tgl_pinjam)->format('d M Y') }}</td>
+                            <td class="p-4 text-center">
+                                @php
+                                    $statusColor = 'gray';
+                                    if($req->status == 'Menunggu') $statusColor = 'orange';
+                                    if($req->status == 'Dipinjam') $statusColor = 'yellow';
+                                    if($req->status == 'Dikembalikan') $statusColor = 'green';
+                                    if($req->status == 'Ditolak') $statusColor = 'red';
+                                @endphp
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$statusColor}}-100 text-{{$statusColor}}-800">{{ $req->status }}</span>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-gray-500">Belum ada peminjaman terbaru.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

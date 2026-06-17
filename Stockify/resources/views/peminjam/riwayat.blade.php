@@ -8,39 +8,53 @@
             <h1 class="text-3xl font-extrabold">Riwayat Peminjaman Saya</h1>
         </div>
 
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
+        @endif
+
         <div class="ui-card">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-max text-left">
                     <thead>
                         <tr>
                             <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Barang</th>
-                            <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200 text-center">Jumlah</th>
-                            <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Tanggal</th>
+                            <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Tanggal Pinjam</th>
                             <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                        $history = [
-                            ['item' => 'Proyektor Epson', 'qty' => 1, 'date_start' => '15 Mei 2024', 'date_end' => '17 Mei 2024', 'status' => 'Dipinjam', 'status_color' => 'yellow'],
-                            ['item' => 'Sound System', 'qty' => 1, 'date_start' => '16 Mei 2024', 'date_end' => '18 Mei 2024', 'status' => 'Menunggu', 'status_color' => 'orange'],
-                            ['item' => 'Meja Rapat', 'qty' => 2, 'date_start' => '10 Mei 2024', 'date_end' => '11 Mei 2024', 'status' => 'Dikembalikan', 'status_color' => 'green']
-                        ];
-                        @endphp
-
-                        @foreach($history as $item)
+                        @forelse($peminjamans as $req)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="p-4 border-b border-gray-100 font-bold text-gray-800">{{ $item['item'] }}</td>
-                            <td class="p-4 border-b border-gray-100 text-center font-medium text-gray-700">{{ $item['qty'] }}</td>
                             <td class="p-4 border-b border-gray-100">
-                                <p class="text-sm text-gray-600">Pinjam: {{ $item['date_start'] }}</p>
-                                <p class="text-sm text-gray-400">Kembali: {{ $item['date_end'] }}</p>
+                                <ul class="list-disc pl-4 font-bold text-gray-800">
+                                    @foreach($req->detailPeminjaman as $detail)
+                                        <li>{{ $detail->barang->nama_barang }} ({{ $detail->jumlah }} unit)</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                            <td class="p-4 border-b border-gray-100">
+                                <p class="text-sm text-gray-600">Mulai: {{ \Carbon\Carbon::parse($req->tgl_pinjam)->format('d M Y') }}</p>
+                                <p class="text-sm text-gray-600">Rencana Kembali: {{ \Carbon\Carbon::parse($req->tgl_kembali_plan)->format('d M Y') }}</p>
+                                @if($req->tgl_kembali_asli)
+                                    <p class="text-sm text-green-600 font-bold mt-1">Dikembalikan: {{ \Carbon\Carbon::parse($req->tgl_kembali_asli)->format('d M Y') }}</p>
+                                @endif
                             </td>
                             <td class="p-4 border-b border-gray-100 text-center">
-                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$item['status_color']}}-100 text-{{$item['status_color']}}-800">{{ $item['status'] }}</span>
+                                @php
+                                    $statusColor = 'gray';
+                                    if($req->status == 'Menunggu') $statusColor = 'orange';
+                                    if($req->status == 'Dipinjam') $statusColor = 'yellow';
+                                    if($req->status == 'Dikembalikan') $statusColor = 'green';
+                                    if($req->status == 'Ditolak') $statusColor = 'red';
+                                @endphp
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$statusColor}}-100 text-{{$statusColor}}-800">{{ $req->status }}</span>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="3" class="p-4 text-center text-gray-500">Belum ada riwayat peminjaman.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
