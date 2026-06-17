@@ -52,7 +52,7 @@ class ProfilController extends Controller
         }
 
         $user->update([
-            'password' => Hash::make($request->new_password),
+            'password' => $request->new_password, // Jangan di-Hash manual
         ]);
 
         return back()->with('success', 'Password berhasil diubah!');
