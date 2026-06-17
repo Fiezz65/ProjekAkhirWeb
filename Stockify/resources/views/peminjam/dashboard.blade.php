@@ -38,8 +38,8 @@
                     <thead>
                         <tr class="border-b border-gray-200">
                             <th class="p-4 text-sm font-semibold text-gray-500">Barang & Jumlah</th>
-                            <th class="p-4 text-sm font-semibold text-gray-500">Tgl. Pinjam</th>
-                            <th class="p-4 text-sm font-semibold text-gray-500">Tgl. Kembali</th>
+                            <th class="p-4 text-sm font-semibold text-gray-500">Tanggal Pinjam</th>
+                            <th class="p-4 text-sm font-semibold text-gray-500">Tanggal Kembali</th>
                             <th class="p-4 text-sm font-semibold text-gray-500 text-center">Status</th>
                         </tr>
                     </thead>

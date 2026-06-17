@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
 {
@@ -20,14 +21,30 @@ class BarangController extends Controller
             'jumlah_total' => 'required|integer|min:1',
             'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
             'keterangan' => 'nullable|string',
+            'foto_barang' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+        ], [
+            'nama_barang.required' => 'Nama barang wajib diisi.',
+            'jumlah_total.required' => 'Jumlah total wajib diisi.',
+            'jumlah_total.integer' => 'Jumlah total harus berupa angka.',
+            'jumlah_total.min' => 'Jumlah total minimal adalah 1.',
+            'kondisi.required' => 'Kondisi barang wajib dipilih.',
+            'foto_barang.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_barang.mimes' => 'Format foto harus berupa: jpeg, png, jpg, atau gif.',
+            'foto_barang.max' => 'Ukuran foto tidak boleh lebih dari 10 MB.',
         ]);
+
+        $path = null;
+        if ($request->hasFile('foto_barang')) {
+            $path = $request->file('foto_barang')->store('foto_barang', 'public');
+        }
 
         Barang::create([
             'nama_barang' => $request->nama_barang,
             'jumlah_total' => $request->jumlah_total,
-            'jumlah_tersedia' => $request->jumlah_total, // Awal tambah, tersedia = total
+            'jumlah_tersedia' => $request->jumlah_total,
             'kondisi' => $request->kondisi,
             'keterangan' => $request->keterangan,
+            'foto_barang' => $path,
         ]);
 
         return redirect()->route('admin.barang.index')->with('success', 'Barang berhasil ditambahkan!');
@@ -42,11 +59,9 @@ class BarangController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        // Hitung selisih jumlah total untuk menyesuaikan jumlah tersedia
         $selisih = $request->jumlah_total - $barang->jumlah_total;
         $jumlahTersediaBaru = $barang->jumlah_tersedia + $selisih;
 
-        // Cegah update jika jumlah tersedia menjadi negatif (karena sedang dipinjam lebih dari jumlah baru)
         if ($jumlahTersediaBaru < 0) {
             return back()->with('error', 'Gagal update: Jumlah total baru lebih sedikit dari jumlah barang yang sedang dipinjam saat ini.');
         }
@@ -64,12 +79,13 @@ class BarangController extends Controller
 
     public function destroy(Barang $barang)
     {
-        // Validasi: Cek apakah barang sedang dipinjam
-        // Di PRD: Barang tidak bisa dihapus jika masih ada transaksi berstatus "Dipinjam"
-        // Logika ini akan lebih akurat saat relasi Peminjaman sudah dibuat. 
-        // Sementara kita pakai jumlah_tersedia != jumlah_total sebagai deteksi sederhana
         if ($barang->jumlah_tersedia < $barang->jumlah_total) {
             return back()->with('error', 'Gagal menghapus: Barang ini sedang dipinjam oleh seseorang!');
+        }
+
+        if ($barang->foto_barang) {
+            // Hapus dari disk 'public'
+            Storage::disk('public')->delete($barang->foto_barang);
         }
 
         $barang->delete();

@@ -5,18 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Peminjaman;
 use App\Models\DetailPeminjaman;
+use App\Models\User; // Import User model
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PeminjamanController extends Controller
 {
-    // ==========================================
-    // BAGIAN PEMINJAM
-    // ==========================================
 
     public function createPeminjam()
     {
-        // Hanya tampilkan barang yang totalnya lebih dari 0
         $barangs = Barang::where('jumlah_total', '>', 0)->get();
         return view('peminjam.pinjam_barang', compact('barangs'));
     }
@@ -27,11 +24,16 @@ class PeminjamanController extends Controller
             'tgl_pinjam' => 'required|date',
             'tgl_kembali_plan' => 'required|date|after:tgl_pinjam',
             'items' => 'required|array|min:1',
-            'items.*.id_barang' => 'required|exists:barang,id_barang',
+            'items.*.id_barang' => 'required|exists:barangs,id_barang',
             'items.*.jumlah' => 'required|integer|min:1',
+        ], [
+            'tgl_pinjam.required' => 'Tanggal pinjam wajib diisi.',
+            'tgl_kembali_plan.required' => 'Tanggal rencana kembali wajib diisi.',
+            'tgl_kembali_plan.after' => 'Tanggal kembali harus setelah tanggal pinjam.',
+            'items.required' => 'Terjadi kesalahan, silakan coba lagi.',
+            'items.*.jumlah.min' => 'Jumlah peminjaman minimal 1 barang.',
         ]);
 
-        // Validasi stok apakah mencukupi
         foreach ($request->items as $item) {
             $barang = Barang::find($item['id_barang']);
             if ($barang->jumlah_tersedia < $item['jumlah']) {
@@ -39,7 +41,6 @@ class PeminjamanController extends Controller
             }
         }
 
-        // Buat record Peminjaman Induk
         $peminjaman = Peminjaman::create([
             'id_users' => Auth::id(),
             'tgl_pinjam' => $request->tgl_pinjam,
@@ -47,7 +48,6 @@ class PeminjamanController extends Controller
             'status' => 'Menunggu',
         ]);
 
-        // Buat Detail Peminjaman (Bisa banyak barang sekaligus - Fitur Keranjang Ready!)
         foreach ($request->items as $item) {
             DetailPeminjaman::create([
                 'id_peminjaman' => $peminjaman->id_peminjaman,
@@ -61,36 +61,47 @@ class PeminjamanController extends Controller
 
     public function riwayatPeminjam()
     {
-        // Ambil riwayat khusus user yang login
         $peminjamans = Peminjaman::with('detailPeminjaman.barang')
             ->where('id_users', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
-            
+
         return view('peminjam.riwayat', compact('peminjamans'));
     }
 
-    // ==========================================
-    // BAGIAN ADMIN
-    // ==========================================
-
     public function indexAdmin()
     {
-        // Tampilkan semua request peminjaman untuk admin, urut dari yang terbaru
         $requests = Peminjaman::with(['user', 'detailPeminjaman.barang'])
             ->orderByRaw("
-                CASE status 
-                    WHEN 'Menunggu' THEN 1 
-                    WHEN 'Dipinjam' THEN 2 
-                    WHEN 'Dikembalikan' THEN 3 
-                    WHEN 'Ditolak' THEN 4 
-                    ELSE 5 
+                CASE status
+                    WHEN 'Menunggu' THEN 1
+                    WHEN 'Dipinjam' THEN 2
+                    WHEN 'Dikembalikan' THEN 3
+                    WHEN 'Ditolak' THEN 4
+                    ELSE 5
                 END
             ")
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('admin.manajemen_peminjaman', compact('requests'));
+    }
+
+    public function showPeminjam(User $user)
+    {
+        $peminjam = $user;
+
+        $peminjamanAktif = Peminjaman::with('detailPeminjaman.barang')
+            ->where('id_users', $peminjam->id_users)
+            ->where('status', 'Dipinjam')
+            ->get();
+
+        $riwayatPeminjaman = Peminjaman::with('detailPeminjaman.barang')
+            ->where('id_users', $peminjam->id_users)
+            ->orderBy('created_at', 'desc')
+            ->get(); // Menghapus batasan .take(5)
+
+        return view('admin.detail_peminjam', compact('peminjam', 'peminjamanAktif', 'riwayatPeminjaman'));
     }
 
     public function riwayatAdmin()
@@ -108,7 +119,6 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Hanya status Menunggu yang dapat disetujui.');
         }
 
-        // Cek kembali stok sebelum disetujui (takutnya sudah dipinjam orang lain sementara admin belum klik setuju)
         foreach ($peminjaman->detailPeminjaman as $detail) {
             $barang = $detail->barang;
             if ($barang->jumlah_tersedia < $detail->jumlah) {
@@ -116,14 +126,12 @@ class PeminjamanController extends Controller
             }
         }
 
-        // Kurangi Stok Barang
         foreach ($peminjaman->detailPeminjaman as $detail) {
             $barang = $detail->barang;
             $barang->jumlah_tersedia -= $detail->jumlah;
             $barang->save();
         }
 
-        // Ubah Status
         $peminjaman->update(['status' => 'Dipinjam']);
 
         return back()->with('success', 'Peminjaman disetujui! Stok barang telah dikurangi.');
@@ -146,14 +154,12 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Barang belum berstatus Dipinjam.');
         }
 
-        // Tambah Stok Barang Kembali
         foreach ($peminjaman->detailPeminjaman as $detail) {
             $barang = $detail->barang;
             $barang->jumlah_tersedia += $detail->jumlah;
             $barang->save();
         }
 
-        // Ubah Status dan Catat Tanggal Kembali Asli
         $peminjaman->update([
             'status' => 'Dikembalikan',
             'tgl_kembali_asli' => now()->toDateString(),

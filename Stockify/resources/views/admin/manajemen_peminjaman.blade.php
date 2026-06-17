@@ -8,13 +8,6 @@
             <h1 class="text-3xl font-extrabold">Manajemen Peminjaman</h1>
         </div>
 
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">{{ session('error') }}</div>
-        @endif
-
         <div class="ui-card">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-max text-left">
@@ -30,8 +23,9 @@
                         @forelse($requests as $req)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="p-4 border-b border-gray-100">
-                                <p class="font-bold text-gray-800">{{ $req->user->nama }}</p>
-                                <p class="text-sm text-gray-500">Tgl. Pinjam: {{ \Carbon\Carbon::parse($req->tgl_pinjam)->format('d M Y') }}</p>
+                                <a href="{{ route('admin.peminjam.show', $req->user->id_users) }}" class="font-bold text-gray-800 hover:text-blue-600 transition-colors">{{ $req->user->nama }}</a>
+                                <p class="text-sm text-gray-500">{{ $req->user->nim }}</p>
+                                <p class="text-sm text-gray-500 mt-1">Tanggal Pinjam: {{ \Carbon\Carbon::parse($req->tgl_pinjam)->format('d M Y') }}</p>
                                 <p class="text-sm text-gray-500">Rencana Kembali: {{ \Carbon\Carbon::parse($req->tgl_kembali_plan)->format('d M Y') }}</p>
                             </td>
                             <td class="p-4 border-b border-gray-100 font-medium text-gray-700">

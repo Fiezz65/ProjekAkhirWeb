@@ -13,7 +13,9 @@ class AuthController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
+            'nim' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
+            'no_telp' => 'nullable|string|max:255',
             'password' => 'required|string|min:8',
             'alamat' => 'required|string|max:255',
             'fakultas' => 'required|string|max:255',
@@ -22,8 +24,10 @@ class AuthController extends Controller
 
         $user = User::create([
             'nama' => $request->nama,
+            'nim' => $request->nim,
             'email' => $request->email,
-            'password' => $request->password, // Jangan di-Hash manual karena User model sudah punya cast 'hashed'
+            'no_telp' => $request->no_telp,
+            'password' => Hash::make($request->password),
             'role' => 'peminjam',
             'alamat' => $request->alamat,
             'fakultas' => $request->fakultas,

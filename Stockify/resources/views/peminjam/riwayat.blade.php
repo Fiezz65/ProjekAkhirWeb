@@ -8,10 +8,6 @@
             <h1 class="text-3xl font-extrabold">Riwayat Peminjaman Saya</h1>
         </div>
 
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
-        @endif
-
         <div class="ui-card">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-max text-left">

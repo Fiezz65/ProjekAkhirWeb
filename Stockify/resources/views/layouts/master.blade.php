@@ -87,22 +87,52 @@
             color: white;
             font-weight: 600;
         }
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-webkit-password-reveal-button {
+            display: none;
+        }
     </style>
 </head>
 <body class="text-slate-800 @yield('body-class')">
 
-    <div class="flex min-h-screen">
+    <div class="flex h-screen">
         @if(Auth::check())
             @include('layouts.sidebar')
         @endif
-        <div class="flex-1">
-            <main class="p-4 sm:p-6 md:p-8">
+        <div class="flex-1 flex flex-col">
+            <main class="flex-1 @yield('main-class', 'overflow-y-auto p-4 sm:p-6 md:p-8')">
+                @if(session('success'))
+                    <div id="success-alert" class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div id="error-alert" class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">{{ session('error') }}</div>
+                @endif
                 @yield('konten')
             </main>
         </div>
     </div>
     <script>
       feather.replace();
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const successAlert = document.getElementById('success-alert');
+        if (successAlert) {
+          setTimeout(() => {
+            successAlert.style.transition = 'opacity 0.5s ease';
+            successAlert.style.opacity = '0';
+            setTimeout(() => successAlert.remove(), 500);
+          }, 3000);
+        }
+
+        const errorAlert = document.getElementById('error-alert');
+        if (errorAlert) {
+          setTimeout(() => {
+            errorAlert.style.transition = 'opacity 0.5s ease';
+            errorAlert.style.opacity = '0';
+            setTimeout(() => errorAlert.remove(), 500);
+          }, 3000);
+        }
+      });
     </script>
 </body>
 </html>

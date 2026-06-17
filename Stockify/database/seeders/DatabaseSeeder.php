@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         \App\Models\User::create([
-            'nama' => 'Administrator',
+            'nama' => 'Admin',
             'email' => 'admin@admin.com',
             'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
             'role' => 'admin',
