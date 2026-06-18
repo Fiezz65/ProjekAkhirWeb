@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\User::create([
             'nama' => 'Administrator',
             'email' => 'admin@admin.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
+            'password' => 'admin123', // Jangan di-Hash manual karena User model sudah punya cast 'hashed'
             'role' => 'admin',
         ]);
     }
