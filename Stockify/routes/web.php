@@ -8,15 +8,27 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfilController;
 
 Route::get('/', function () {
-    return view('autentikasi.login');
+    if (Auth::check()) {
+        if (Auth::user()->role == 'admin') return redirect()->route('admin.dashboard');
+        return redirect()->route('peminjam.dashboard');
+    }
+    return redirect()->route('login');
 });
 
 Route::prefix('auth')->group(function () {
     Route::get('/login', function () {
+        if (Auth::check()) {
+            if (Auth::user()->role == 'admin') return redirect()->route('admin.dashboard');
+            return redirect()->route('peminjam.dashboard');
+        }
         return view('autentikasi.login');
     })->name('login');
 
     Route::get('/register', function () {
+        if (Auth::check()) {
+            if (Auth::user()->role == 'admin') return redirect()->route('admin.dashboard');
+            return redirect()->route('peminjam.dashboard');
+        }
         return view('autentikasi.register');
     })->name('register');
 
