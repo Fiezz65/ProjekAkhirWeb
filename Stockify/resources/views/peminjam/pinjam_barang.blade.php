@@ -8,6 +8,8 @@
 <div x-data="{
     isLoanModalOpen: false,
     selectedBarang: {},
+    isLightboxOpen: false,
+    lightboxImage: '',
     openModal(barang) {
         this.selectedBarang = barang;
         this.isLoanModalOpen = true;
@@ -15,6 +17,10 @@
         // Set default date to today
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('loan_tgl_pinjam').value = today;
+    },
+    openLightbox(imageSrc) {
+        this.lightboxImage = imageSrc;
+        this.isLightboxOpen = true;
     }
 }">
     <div class="mb-8">
@@ -35,11 +41,11 @@
 
         @forelse($barangs as $barang)
         <div class="ui-card {{ $barang->jumlah_tersedia > 0 && $barang->kondisi != 'Rusak Berat' ? 'ui-card-hover' : 'bg-gray-50 opacity-70' }} flex flex-col">
-            <div class="h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+            <div class="h-48 bg-white mb-4 flex items-center justify-center overflow-hidden rounded-lg">
                 @if($barang->foto_barang)
-                    <img src="{{ Illuminate\Support\Facades\Storage::url($barang->foto_barang) }}" alt="{{ $barang->nama_barang }}" class="w-full h-full object-cover">
+                    <img @click="openLightbox('{{ Illuminate\Support\Facades\Storage::url($barang->foto_barang) }}')" src="{{ Illuminate\Support\Facades\Storage::url($barang->foto_barang) }}" alt="{{ $barang->nama_barang }}" class="w-full h-full object-contain p-2 cursor-pointer hover:scale-105 transition-transform duration-300">
                 @else
-                    <i data-feather="camera" class="w-10 h-10 text-gray-400"></i>
+                    <i data-feather="camera" class="w-12 h-12 text-gray-300"></i>
                 @endif
             </div>
             <h3 class="font-bold text-lg mb-1">{{ $barang->nama_barang }}</h3>
@@ -107,6 +113,16 @@
                     <button type="submit" class="ui-button ui-button-primary">Kirim Permohonan</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div x-show="isLightboxOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-90 p-4" style="display: none;">
+        <button @click="isLightboxOpen = false" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 p-2">
+            <i data-feather="x" class="w-8 h-8"></i>
+        </button>
+        <div @click.away="isLightboxOpen = false" class="max-w-4xl max-h-[90vh] flex items-center justify-center relative">
+            <img :src="lightboxImage" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl">
         </div>
     </div>
 </div>
