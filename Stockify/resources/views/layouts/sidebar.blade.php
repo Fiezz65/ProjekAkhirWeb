@@ -47,7 +47,7 @@
 
     <div class="mt-auto space-y-2">
         <a href="{{ Auth::check() && Auth::user()->role == 'admin' ? route('admin.profil') : route('peminjam.profil') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg transition-colors {{ str_contains($currentRoute, 'profil') ? 'active' : 'hover:bg-gray-100' }}">
-            <i data-feather="user" class="w-5 h-5"></i>
+            <img src="{{ Auth::user()->profile_picture_path ? asset('storage/' . Auth::user()->profile_picture_path) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->nama).'&background=EBF4FF&color=7F9CF5' }}" alt="Foto Profil" class="w-6 h-6 rounded-full object-cover">
             <span>Profil Saya</span>
         </a>
         <a href="{{ route('logout') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors">

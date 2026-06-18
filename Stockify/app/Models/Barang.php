@@ -9,7 +9,7 @@ class Barang extends Model
 {
     use HasFactory;
 
-    protected $table = 'barang';
+    protected $table = 'barangs';
     protected $primaryKey = 'id_barang';
 
     protected $fillable = [
@@ -18,7 +18,7 @@ class Barang extends Model
         'jumlah_tersedia',
         'kondisi',
         'keterangan',
-        'foto',
+        'foto_barang',
     ];
 
     public function detailPeminjaman()

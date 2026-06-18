@@ -5,13 +5,13 @@
 @section('konten')
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-<div x-data="{ 
+<div x-data="{
     isLoanModalOpen: false,
     selectedBarang: {},
     openModal(barang) {
         this.selectedBarang = barang;
         this.isLoanModalOpen = true;
-        
+
         // Set default date to today
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('loan_tgl_pinjam').value = today;
@@ -21,12 +21,6 @@
         <h1 class="text-3xl font-extrabold">Pinjam Barang</h1>
     </div>
 
-    @if(session('success'))
-        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">{{ session('error') }}</div>
-    @endif
     @if ($errors->any())
         <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
             <ul class="list-disc pl-5">
@@ -41,9 +35,9 @@
 
         @forelse($barangs as $barang)
         <div class="ui-card {{ $barang->jumlah_tersedia > 0 && $barang->kondisi != 'Rusak Berat' ? 'ui-card-hover' : 'bg-gray-50 opacity-70' }} flex flex-col">
-            <div class="h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                @if($barang->kondisi == 'Rusak Berat')
-                    <i data-feather="camera-off" class="w-10 h-10 text-gray-400"></i>
+            <div class="h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                @if($barang->foto_barang)
+                    <img src="{{ Illuminate\Support\Facades\Storage::url($barang->foto_barang) }}" alt="{{ $barang->nama_barang }}" class="w-full h-full object-cover">
                 @else
                     <i data-feather="camera" class="w-10 h-10 text-gray-400"></i>
                 @endif
@@ -60,7 +54,7 @@
                 <span>Tersedia: <span class="font-bold">{{ $barang->jumlah_tersedia }}</span></span>
             </div>
             <p class="text-sm text-gray-500 flex-grow mb-4">{{ $barang->keterangan ?? 'Tidak ada keterangan tambahan.' }}</p>
-            
+
             @if($barang->jumlah_tersedia > 0 && $barang->kondisi != 'Rusak Berat')
             <button @click="openModal({{ $barang->toJson() }})" class="ui-button ui-button-primary w-full">
                 <i data-feather="shopping-bag" class="w-5 h-5"></i>
@@ -87,12 +81,10 @@
                 <h3 class="text-xl font-bold">Ajukan Peminjaman</h3>
                 <button @click="isLoanModalOpen = false" class="p-2 rounded-full hover:bg-gray-100"><i data-feather="x" class="w-5 h-5"></i></button>
             </div>
-            <!-- Form mengirim ke route pinjam.store dengan method POST -->
             <form action="{{ route('peminjam.pinjam.store') }}" method="POST" class="space-y-4">
                 @csrf
-                <!-- Format Array untuk kompatibilitas dengan fitur Keranjang di masa depan -->
                 <input type="hidden" name="items[0][id_barang]" x-model="selectedBarang.id_barang">
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Barang yang Dipinjam</label>
                     <input type="text" class="ui-input bg-gray-100" x-model="selectedBarang.nama_barang" disabled>
@@ -100,7 +92,6 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="loan_jumlah" class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
-                        <!-- Maksimal jumlah yang dipinjam adalah stok tersedia -->
                         <input type="number" name="items[0][jumlah]" id="loan_jumlah" class="ui-input" value="1" min="1" :max="selectedBarang.jumlah_tersedia" required>
                     </div>
                     <div>

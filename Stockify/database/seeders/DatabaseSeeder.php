@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         \App\Models\User::create([
-            'nama' => 'Administrator',
+            'nama' => 'Admin',
             'email' => 'admin@admin.com',
             'password' => 'admin123', // Jangan di-Hash manual karena User model sudah punya cast 'hashed'
             'role' => 'admin',

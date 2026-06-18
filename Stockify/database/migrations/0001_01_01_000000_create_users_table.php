@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id('id_users');
             $table->string('nama');
             $table->string('email')->unique();
+            $table->string('nim')->unique()->nullable();
+            $table->string('no_telp')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'peminjam'])->default('peminjam');
             $table->string('alamat')->nullable();
