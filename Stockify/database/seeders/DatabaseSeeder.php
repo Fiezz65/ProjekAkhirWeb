@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\User::create([
             'nama' => 'Admin',
             'email' => 'admin@admin.com',
-            'password' => 'admin123', // Jangan di-Hash manual karena User model sudah punya cast 'hashed'
+            'password' => 'admin123',
             'role' => 'admin',
         ]);
     }
