@@ -136,7 +136,7 @@
                 <h3 class="text-xl font-bold">Edit Barang</h3>
                 <button @click="isEditModalOpen = false" class="p-2 rounded-full hover:bg-gray-100"><i data-feather="x" class="w-5 h-5"></i></button>
             </div>
-            <form :action="`/admin/barang/${editData.id_barang}`" method="POST" class="space-y-4">
+            <form :action="`/admin/barang/${editData.id_barang}`" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 @method('PUT')
                 <div>
@@ -156,6 +156,10 @@
                             <option value="Rusak Berat">Rusak Berat</option>
                         </select>
                     </div>
+                </div>
+                <div>
+                    <label for="edit_foto" class="block text-sm font-medium text-gray-700 mb-1">Foto Barang (Biarkan kosong jika tidak ingin mengubah)</label>
+                    <input type="file" name="foto_barang" id="edit_foto" class="ui-input" accept="image/*">
                 </div>
                 <div>
                     <label for="edit_keterangan" class="block text-sm font-medium text-gray-700 mb-1">Keterangan (Opsional)</label>

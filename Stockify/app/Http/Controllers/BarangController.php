@@ -57,6 +57,7 @@ class BarangController extends Controller
             'jumlah_total' => 'required|integer|min:1',
             'kondisi' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
             'keterangan' => 'nullable|string',
+            'foto_barang' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
         $selisih = $request->jumlah_total - $barang->jumlah_total;
@@ -66,12 +67,21 @@ class BarangController extends Controller
             return back()->with('error', 'Gagal update: Jumlah total baru lebih sedikit dari jumlah barang yang sedang dipinjam saat ini.');
         }
 
+        $path = $barang->foto_barang;
+        if ($request->hasFile('foto_barang')) {
+            if ($barang->foto_barang) {
+                Storage::disk('public')->delete($barang->foto_barang);
+            }
+            $path = $request->file('foto_barang')->store('foto_barang', 'public');
+        }
+
         $barang->update([
             'nama_barang' => $request->nama_barang,
             'jumlah_total' => $request->jumlah_total,
             'jumlah_tersedia' => $jumlahTersediaBaru,
             'kondisi' => $request->kondisi,
             'keterangan' => $request->keterangan,
+            'foto_barang' => $path,
         ]);
 
         return redirect()->route('admin.barang.index')->with('success', 'Data barang berhasil diperbarui!');
