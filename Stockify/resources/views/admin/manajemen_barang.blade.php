@@ -43,6 +43,7 @@
                         <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Nama Barang</th>
                         <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200 text-center">Stok</th>
                         <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Kondisi</th>
+                        <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200">Keterangan</th>
                         <th class="p-4 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -68,6 +69,9 @@
                             @endphp
                             <span class="px-3 py-1 text-xs font-semibold rounded-full bg-{{$color}}-100 text-{{$color}}-800">{{ $barang->kondisi }}</span>
                         </td>
+                        <td class="p-4 border-b border-gray-100 text-sm text-gray-600">
+                            {{ $barang->keterangan ?: '-' }}
+                        </td>
                         <td class="p-4 border-b border-gray-100">
                             <div class="flex justify-center items-center gap-2">
                                 <button @click="editBarang({{ $barang->toJson() }})" title="Edit Barang" class="p-2 rounded-md hover:bg-blue-100 text-blue-600 transition-colors"><i data-feather="edit" class="w-4 h-4"></i></button>
@@ -81,7 +85,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="p-4 text-center text-gray-500">Belum ada data barang.</td>
+                        <td colspan="6" class="p-4 text-center text-gray-500">Belum ada data barang.</td>
                     </tr>
                     @endforelse
                 </tbody>
