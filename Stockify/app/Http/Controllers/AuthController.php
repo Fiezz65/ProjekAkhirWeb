@@ -13,13 +13,17 @@ class AuthController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'nim' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
+            'nim' => 'required|string|max:255|unique:users,nim',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'no_telp' => 'nullable|string|max:255',
             'password' => 'required|string|min:8',
             'alamat' => 'required|string|max:255',
             'fakultas' => 'required|string|max:255',
             'program_studi' => 'required|string|max:255',
+        ], [
+            'email.unique' => 'Email sudah terdaftar',
+            'nim.unique' => 'NIM sudah terdaftar',
+            'password.min' => 'Password minimal 8 karakter',
         ]);
 
         $user = User::create([
