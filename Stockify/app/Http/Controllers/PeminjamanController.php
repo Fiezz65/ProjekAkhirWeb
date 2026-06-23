@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Peminjaman;
 use App\Models\DetailPeminjaman;
-use App\Models\User; // Import User model
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -99,7 +99,7 @@ class PeminjamanController extends Controller
         $riwayatPeminjaman = Peminjaman::with('detailPeminjaman.barang')
             ->where('id_users', $peminjam->id_users)
             ->orderBy('created_at', 'desc')
-            ->get(); // Menghapus batasan .take(5)
+            ->get();
 
         return view('admin.detail_peminjam', compact('peminjam', 'peminjamanAktif', 'riwayatPeminjaman'));
     }
