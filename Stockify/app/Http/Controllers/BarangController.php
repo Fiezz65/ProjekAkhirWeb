@@ -94,7 +94,6 @@ class BarangController extends Controller
         }
 
         if ($barang->foto_barang) {
-            // Hapus dari disk 'public'
             Storage::disk('public')->delete($barang->foto_barang);
         }
 

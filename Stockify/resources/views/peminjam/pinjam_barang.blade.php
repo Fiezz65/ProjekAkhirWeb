@@ -14,7 +14,6 @@
         this.selectedBarang = barang;
         this.isLoanModalOpen = true;
 
-        // Set default date to today
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('loan_tgl_pinjam').value = today;
     },
@@ -116,7 +115,6 @@
         </div>
     </div>
 
-    <!-- Lightbox Modal -->
     <div x-show="isLightboxOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-90 p-4" style="display: none;">
         <button @click="isLightboxOpen = false" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 p-2">
             <i data-feather="x" class="w-8 h-8"></i>
